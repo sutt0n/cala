@@ -111,8 +111,6 @@ impl CalaTransactions {
       params.insert(key, cel_value);
     }
 
-    println!("Params: {:?}", params);
-
     let transaction = self
       .ledger
       .post_transaction(id, &tx_template_code, params)
