@@ -1,0 +1,9 @@
+query journalByCode($code: String!) {
+  journalByCode(code: $code) {
+    id
+    journalId
+    name
+    status
+    code
+  }
+}

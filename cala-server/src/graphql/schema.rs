@@ -102,6 +102,19 @@ impl<E: QueryExtensionMarker> CoreQuery<E> {
         Ok(loader.load_one(JournalId::from(id)).await?)
     }
 
+    async fn journal_by_code(
+        &self,
+        ctx: &Context<'_>,
+        code: String,
+    ) -> async_graphql::Result<Option<Journal>> {
+        let app = ctx.data_unchecked::<CalaApp>();
+        match app.ledger().journals().find_by_code(code).await {
+            Ok(journal) => Ok(Some(journal.into())),
+            Err(cala_ledger::journal::error::JournalError::CouldNotFindByCode(_)) => Ok(None),
+            Err(err) => Err(err.into()),
+        }
+    }
+
     async fn balance(
         &self,
         ctx: &Context<'_>,

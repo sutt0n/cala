@@ -4,10 +4,13 @@
 extern crate napi_derive;
 
 mod account;
+mod balance;
+mod entry;
 mod generic_error;
 mod journal;
 mod ledger;
 mod query;
+mod transaction;
 mod tx_template;
 
 pub(crate) use generic_error::generic_napi_error;

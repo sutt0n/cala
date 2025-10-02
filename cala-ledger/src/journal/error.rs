@@ -6,6 +6,8 @@ pub enum JournalError {
     Sqlx(sqlx::Error),
     #[error("JournalError - EsEntityError: {0}")]
     EsEntityError(es_entity::EsEntityError),
+    #[error("JournalError - NotFound: code '{0}' not found")]
+    CouldNotFindByCode(String),
     #[error("JournalError - CursorDestructureError: {0}")]
     CursorDestructureError(#[from] es_entity::CursorDestructureError),
     #[error("JournalError - code already exists")]

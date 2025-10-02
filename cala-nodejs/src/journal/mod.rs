@@ -7,7 +7,7 @@ use values::*;
 pub struct NewJournal {
   pub id: Option<String>,
   pub name: String,
-  pub code: String,
+  pub code: Option<String>,
   pub external_id: Option<String>,
   pub description: Option<String>,
 }
@@ -55,6 +55,10 @@ impl CalaJournals {
     new.id(id).name(new_journal.name);
     if let Some(description) = new_journal.description {
       new.description(description);
+    }
+
+    if let Some(code) = new_journal.code {
+      new.code(code);
     }
 
     let journal = self

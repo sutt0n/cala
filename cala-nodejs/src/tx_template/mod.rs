@@ -1,7 +1,9 @@
 mod values;
 
-use cala_ledger::velocity::NewParamDefinition;
+use crate::query::{self, PaginatedQueryArgs};
+use cala_ledger::{es_entity::ListDirection, velocity::NewParamDefinition};
 use cala_types::param::ParamDataType;
+
 use values::*;
 
 #[napi]
@@ -157,5 +159,38 @@ impl CalaTxTemplates {
       .await
       .map_err(crate::generic_napi_error)?;
     Ok(CalaTxTemplate { inner: tx_template })
+  }
+
+  #[napi]
+  pub async fn list(
+    &self,
+    query: PaginatedQueryArgs,
+    direction: Option<query::ListDirection>,
+  ) -> napi::Result<PaginatedTxTemplates> {
+    let query = cala_ledger::es_entity::PaginatedQueryArgs {
+      after: query.after.map(|c| c.try_into()).transpose()?,
+      first: usize::try_from(query.first).map_err(crate::generic_napi_error)?,
+    };
+    let list_direction = match direction {
+      Some(query::ListDirection::Ascending) => ListDirection::Ascending,
+      Some(query::ListDirection::Descending) => ListDirection::Descending,
+      None => ListDirection::Descending,
+    };
+
+    let ret = self
+      .inner
+      .list(query, list_direction)
+      .await
+      .map_err(crate::generic_napi_error)?;
+
+    Ok(PaginatedTxTemplates {
+      tx_templates: ret
+        .entities
+        .into_iter()
+        .map(TxTemplateValues::from)
+        .collect(),
+      has_next_page: ret.has_next_page,
+      end_cursor: ret.end_cursor.map(|c| c.into()),
+    })
   }
 }

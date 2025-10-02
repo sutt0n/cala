@@ -4,6 +4,7 @@ import {
   NewTxTemplateEntryValues,
   NewParamDefinitionValues,
   ParamDataTypeValues,
+  CalaTransaction,
 } from "@galoymoney/cala-ledger";
 
 const main = async () => {
@@ -72,10 +73,15 @@ const main = async () => {
     journalId: "params.journal_id",
     effective: "params.effective",
     metadata: "params.meta",
+    externalId: "params.external_id",
     description: "'Record a deposit'",
   };
 
   const txParams: NewParamDefinitionValues[] = [
+    {
+      name: "external_id",
+      type: ParamDataTypeValues.String,
+    },
     {
       name: "journal_id",
       type: ParamDataTypeValues.Uuid,
@@ -109,6 +115,7 @@ const main = async () => {
   const txTemplate = await cala.txTemplates().create({
     code: "RECORD_DEPOSIT",
     description: "Record deposit transaction",
+    externalId: "RECORD_DEPOSIT_v0.1",
     entries: [recordDepositDrEntry, recordDepositCrEntry],
     transaction: txInput,
     params: txParams,
@@ -120,11 +127,61 @@ const main = async () => {
     txTemplate.values().code,
   );
 
+  const txTemplates = await cala.txTemplates().list({
+    first: 10,
+  });
+
+  console.log("Tx Templates: ", txTemplates);
+
   const retrievedTxTemplate = await cala
     .txTemplates()
     .findByCode("RECORD_DEPOSIT");
 
   console.log("Retrieved Tx Template", retrievedTxTemplate.values());
+
+  const transactionParams = {
+    journal_id: journal.id(),
+    external_id: "transaction_external_id-123",
+    currency: "USD",
+    amount: 100.0,
+    deposit_omnibus_account_id: account.id(),
+    credit_account_id: account2.id(),
+    effective: new Date().toISOString(),
+    meta: { something: "useful" },
+  };
+
+  const tx: CalaTransaction = await cala
+    .transactions()
+    .post(txTemplate.values().code, transactionParams);
+
+<<<<<<< HEAD
+=======
+  console.log("transaction", tx.values());
+
+>>>>>>> 2a404069 (feat(cala-nodejs): add bindings for balance, transaction, and entry)
+  const balances1 = await cala
+    .balances()
+    .find(account.id(), journal.id(), "USD");
+  const balances2 = await cala
+    .balances()
+    .find(account2.id(), journal.id(), "USD");
+
+  console.log("Balances for account 1:", balances1);
+  console.log("Balances for account 2:", balances2);
+
+  const entries1 = await cala
+    .entries()
+    .listForAccountId(account.id(), { first: 10 });
+  const entries2 = await cala
+    .entries()
+    .listForAccountId(account2.id(), { first: 10 });
+
+  console.log("Entries for account 1:", entries1);
+  console.log("Entries for account 2:", entries2);
+
+  const txEntries = await cala.entries().listByTransaction(tx.id());
+
+  console.log("Entries for transaction:", txEntries);
 };
 
 main();

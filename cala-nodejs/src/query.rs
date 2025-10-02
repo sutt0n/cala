@@ -10,6 +10,12 @@ pub struct PaginatedQueryArgs {
   pub first: i32,
 }
 
+#[napi]
+pub enum ListDirection {
+  Ascending,
+  Descending,
+}
+
 impl From<cala_ledger::account::AccountsByNameCursor> for CursorToken {
   fn from(cursor: cala_ledger::account::AccountsByNameCursor) -> Self {
     use base64::{engine::general_purpose, Engine as _};
