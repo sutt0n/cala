@@ -154,11 +154,6 @@ const main = async () => {
     .transactions()
     .post(txTemplate.values().code, transactionParams);
 
-<<<<<<< HEAD
-=======
-  console.log("transaction", tx.values());
-
->>>>>>> 2a404069 (feat(cala-nodejs): add bindings for balance, transaction, and entry)
   const balances1 = await cala
     .balances()
     .find(account.id(), journal.id(), "USD");

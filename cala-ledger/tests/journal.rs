@@ -26,3 +26,20 @@ async fn journal_find_by_code() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+#[tokio::test]
+async fn journal_cannot_find_by_code() -> anyhow::Result<()> {
+    let pool = helpers::init_pool().await?;
+    let cala_config = CalaLedgerConfig::builder()
+        .pool(pool)
+        .exec_migrations(false)
+        .build()?;
+    let cala = CalaLedger::init(cala_config).await?;
+
+    let code = Alphanumeric.sample_string(&mut rand::rng(), 16);
+    let result = cala.journals().find_by_code(code.to_string()).await;
+
+    assert!(result.is_err());
+
+    Ok(())
+}

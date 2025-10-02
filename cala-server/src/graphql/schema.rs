@@ -433,6 +433,9 @@ impl<E: MutationExtensionMarker> CoreMutation<E> {
             .id(input.journal_id)
             .name(input.name)
             .status(input.status);
+        if let Some(code) = input.code {
+            builder.code(code);
+        }
         if let Some(description) = input.description {
             builder.description(description);
         }

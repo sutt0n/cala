@@ -30,9 +30,9 @@ teardown_file() {
   # journal by code
   variables=$(
     jq -n \
-    --arg journal_code "GENERAL_LEDGER" \
+    --arg code "GENERAL_LEDGER" \
     '{
-      "code": $journal_code
+      "code": $code
     }'
   )
   exec_graphql 'journal-by-code' "$variables"

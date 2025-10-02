@@ -9,6 +9,7 @@ pub struct JournalCreateInput {
     #[graphql(default)]
     pub(super) status: Status,
     pub(super) description: Option<String>,
+    pub(super) code: Option<String>,
 }
 
 #[derive(Clone, SimpleObject)]
