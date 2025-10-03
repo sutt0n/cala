@@ -3,6 +3,7 @@ mutation journalCreate($input: JournalCreateInput!) {
     journal {
       journalId
       name
+      code
     }
   }
 }

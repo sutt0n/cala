@@ -19,12 +19,25 @@ teardown_file() {
         "input": {
           "journalId": $journal_id,
           "name": "General Ledger",
+          "code": "GENERAL_LEDGER",
         }
     }'
   )
   exec_graphql 'journal-create' "$variables"
   output=$(graphql_output '.data.journalCreate.journal.journalId')
   [[ "$output" != "null" ]] || exit 1
+
+  # journal by code
+  variables=$(
+    jq -n \
+    --arg code "GENERAL_LEDGER" \
+    '{
+      "code": $code
+    }'
+  )
+  exec_graphql 'journal-by-code' "$variables"
+  output=$(graphql_output '.data.journalByCode.journalId')
+  [[ "$output" == "$journal_id" ]] || exit 1
   
   # create accounts
   

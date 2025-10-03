@@ -9,6 +9,7 @@ pub struct JournalCreateInput {
     #[graphql(default)]
     pub(super) status: Status,
     pub(super) description: Option<String>,
+    pub(super) code: Option<String>,
 }
 
 #[derive(Clone, SimpleObject)]
@@ -17,6 +18,7 @@ pub struct Journal {
     journal_id: UUID,
     version: u32,
     name: String,
+    code: Option<String>,
     status: Status,
     description: Option<String>,
     created_at: Timestamp,
@@ -44,6 +46,7 @@ impl From<cala_ledger::journal::Journal> for Journal {
             journal_id: UUID::from(values.id),
             version: values.version,
             name: values.name,
+            code: values.code,
             status: values.status,
             description: values.description,
             created_at: Timestamp::from(created_at),

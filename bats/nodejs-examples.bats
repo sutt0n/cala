@@ -57,8 +57,10 @@ reset_pg_and_restart_server() {
     sleep 1
   done
 
+  # accounts
   [[ "$accounts_after" -gt "$accounts_before" ]] || exit 1
 
+  # tx template
   variables=$(
     jq -n \
       --arg code "RECORD_DEPOSIT" \
@@ -67,4 +69,37 @@ reset_pg_and_restart_server() {
   exec_graphql 'tx-template-find-by-code' "$variables"
   tx_template_code=$(graphql_output '.data.txTemplateFindByCode.txTemplate.code')
   [[ "$tx_template_code" != "RECORD_DEPOSIT" ]] || exit 1
+
+  # journal by code
+  variables=$(
+    jq -n \
+      --arg code "MY_JOURNAL" \
+    '{"code": $code}'
+  )
+  exec_graphql 'journal-by-code' "$variables"
+  journal_id=$(graphql_output '.data.journalByCode.journalId')
+  [[ -n "$journal_id" ]] || exit 1
+
+  # balance 
+  variables=$(
+    jq -n \
+      --arg code "USERS_TWO" \
+      --arg journalId "$journal_id" \
+      --arg currency "USD" \
+    '{"code": $code, "journalId": $journalId, "currency": $currency}'
+  )
+  exec_graphql 'account-by-code-with-balance' "$variables"
+  balance=$(graphql_output '.data.accountByCode.balance.settled.normalBalance.units')
+  echo "Balance: $balance"
+  [[ "$balance" == "100" ]] || exit 1
+
+  # transaction by external id
+  variables=$(
+    jq -n \
+      --arg externalId "transaction_external_id-123" \
+    '{"externalId": $externalId}'
+  )
+  exec_graphql 'transaction-by-external-id' "$variables"
+  tx_external_id=$(graphql_output '.data.transactionByExternalId.externalId')
+  [[ "$tx_external_id" == "transaction_external_id-123" ]] || exit 1
 }

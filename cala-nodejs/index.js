@@ -559,9 +559,14 @@ if (!nativeBinding) {
 module.exports = nativeBinding
 module.exports.CalaAccount = nativeBinding.CalaAccount
 module.exports.CalaAccounts = nativeBinding.CalaAccounts
+module.exports.CalaBalances = nativeBinding.CalaBalances
+module.exports.CalaEntries = nativeBinding.CalaEntries
 module.exports.CalaJournal = nativeBinding.CalaJournal
 module.exports.CalaJournals = nativeBinding.CalaJournals
 module.exports.CalaLedger = nativeBinding.CalaLedger
+module.exports.CalaTransaction = nativeBinding.CalaTransaction
+module.exports.CalaTransactions = nativeBinding.CalaTransactions
 module.exports.CalaTxTemplate = nativeBinding.CalaTxTemplate
 module.exports.CalaTxTemplates = nativeBinding.CalaTxTemplates
+module.exports.ListDirection = nativeBinding.ListDirection
 module.exports.ParamDataTypeValues = nativeBinding.ParamDataTypeValues

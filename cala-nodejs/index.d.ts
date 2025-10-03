@@ -10,6 +10,15 @@ export declare class CalaAccounts {
   list(query: PaginatedQueryArgs): Promise<PaginatedAccounts>
 }
 
+export declare class CalaBalances {
+  find(accountId: string, journalId: string, currency: string): Promise<BalanceValues>
+}
+
+export declare class CalaEntries {
+  listByTransaction(transactionId: string): Promise<Array<EntryValues>>
+  listForAccountId(accountId: string, query: PaginatedQueryArgs, direction?: ListDirection | undefined | null): Promise<PaginatedEntries>
+}
+
 export declare class CalaJournal {
   id(): string
   values(): JournalValues
@@ -25,7 +34,20 @@ export declare class CalaLedger {
   accounts(): CalaAccounts
   journals(): CalaJournals
   txTemplates(): CalaTxTemplates
+  balances(): CalaBalances
+  entries(): CalaEntries
+  transactions(): CalaTransactions
   awaitOutboxServer(): Promise<void>
+}
+
+export declare class CalaTransaction {
+  id(): string
+  values(): TransactionValues
+}
+
+export declare class CalaTransactions {
+  post(txTemplateCode: string, params: any): Promise<CalaTransaction>
+  voidTransaction(transactionId: string): Promise<CalaTransaction>
 }
 
 export declare class CalaTxTemplate {
@@ -36,6 +58,7 @@ export declare class CalaTxTemplate {
 export declare class CalaTxTemplates {
   findByCode(code: string): Promise<CalaTxTemplate>
   create(newTxTemplate: NewTxTemplateValues): Promise<CalaTxTemplate>
+  list(query: PaginatedQueryArgs, direction?: ListDirection | undefined | null): Promise<PaginatedTxTemplates>
 }
 
 export interface AccountValues {
@@ -45,6 +68,12 @@ export interface AccountValues {
   externalId?: string
   description?: string
   metadata?: any
+}
+
+export interface BalanceValues {
+  pending: string
+  settled: string
+  encumbrance: string
 }
 
 export interface CalaLedgerConfig {
@@ -57,11 +86,32 @@ export interface CursorToken {
   token: string
 }
 
+export interface EntryValues {
+  id: string
+  version: number
+  transactionId: string
+  journalId: string
+  accountId: string
+  entryType: string
+  sequence: number
+  layer: string
+  units: string
+  currency: string
+  direction: string
+  description?: string
+  metadata?: any
+}
+
 export interface JournalValues {
   id: string
   name: string
   code?: string
   description?: string
+}
+
+export declare const enum ListDirection {
+  Ascending = 0,
+  Descending = 1
 }
 
 export interface NewAccount {
@@ -76,7 +126,7 @@ export interface NewAccount {
 export interface NewJournal {
   id?: string
   name: string
-  code: string
+  code?: string
   externalId?: string
   description?: string
 }
@@ -130,9 +180,21 @@ export interface PaginatedAccounts {
   endCursor?: CursorToken
 }
 
+export interface PaginatedEntries {
+  entries: Array<EntryValues>
+  hasNextPage: boolean
+  endCursor?: CursorToken
+}
+
 export interface PaginatedQueryArgs {
   after?: CursorToken
   first: number
+}
+
+export interface PaginatedTxTemplates {
+  txTemplates: Array<TxTemplateValues>
+  hasNextPage: boolean
+  endCursor?: CursorToken
 }
 
 export declare const enum ParamDataTypeValues {
@@ -144,6 +206,23 @@ export declare const enum ParamDataTypeValues {
   Date = 5,
   Timestamp = 6,
   Json = 7
+}
+
+export interface TransactionValues {
+  id: string
+  version: string
+  createdAt: string
+  modifiedAt: string
+  journalId: string
+  txTemplateId: string
+  entryIds: Array<string>
+  effective: string
+  correlationId: string
+  externalId?: string
+  description?: string
+  voidOf?: string
+  voidedBy?: string
+  metadata?: any
 }
 
 export interface TxTemplateValues {

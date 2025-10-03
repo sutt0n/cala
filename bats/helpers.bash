@@ -100,6 +100,8 @@ exec_graphql() {
     -H "Content-Type: application/json" \
     -d "{\"query\": \"$(gql_query $query_name)\", \"variables\": $variables}" \
     "${GQL_ENDPOINT}"
+
+  echo "GraphQL Response: $output"
 }
 
 # Run the given command in the background. Useful for starting a

@@ -21,6 +21,16 @@ pub fn test_journal() -> NewJournal {
         .unwrap()
 }
 
+pub fn test_journal_with_code(code: &str) -> NewJournal {
+    let name = Alphanumeric.sample_string(&mut rand::rng(), 32);
+    NewJournal::builder()
+        .id(JournalId::new())
+        .name(name)
+        .code(code.to_string())
+        .build()
+        .unwrap()
+}
+
 pub fn test_journal_with_effective_balances() -> NewJournal {
     let name = Alphanumeric.sample_string(&mut rand::rng(), 32);
     NewJournal::builder()
