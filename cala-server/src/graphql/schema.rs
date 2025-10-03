@@ -56,6 +56,25 @@ impl<E: QueryExtensionMarker> CoreQuery<E> {
         }
     }
 
+    async fn balances_for_account(
+        &self,
+        ctx: &Context<'_>,
+        account_id: UUID,
+    ) -> async_graphql::Result<Vec<Balance>> {
+        let account_id = AccountId::from(account_id);
+        let app = ctx.data_unchecked::<CalaApp>();
+
+        match app
+            .ledger()
+            .balances()
+            .find_all_for_account(account_id)
+            .await
+        {
+            Ok(balances) => Ok(balances.into_iter().map(Balance::from).collect()),
+            Err(err) => Err(err.into()),
+        }
+    }
+
     async fn accounts(
         &self,
         ctx: &Context<'_>,

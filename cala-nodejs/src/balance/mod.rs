@@ -50,4 +50,27 @@ impl CalaBalances {
       encumbrance: balance.encumbrance().to_string(),
     })
   }
+
+  pub async fn find_by_account(&self, account_id: String) -> napi::Result<Vec<BalanceValues>> {
+    let account_id = account_id
+      .parse::<cala_ledger::AccountId>()
+      .map_err(crate::generic_napi_error)?;
+
+    let balances = self
+      .inner
+      .find_all_for_account(account_id)
+      .await
+      .map_err(crate::generic_napi_error)?;
+
+    Ok(
+      balances
+        .into_iter()
+        .map(|balance| BalanceValues {
+          pending: balance.pending().to_string(),
+          settled: balance.settled().to_string(),
+          encumbrance: balance.encumbrance().to_string(),
+        })
+        .collect(),
+    )
+  }
 }

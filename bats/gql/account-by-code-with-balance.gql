@@ -1,5 +1,7 @@
 query accountWithBalance($code: String!, $journalId: UUID!, $currency: CurrencyCode!) {
   accountByCode(code: $code) {
+    id
+    accountId
     name
     balance(journalId: $journalId, currency: $currency) {
       settled {

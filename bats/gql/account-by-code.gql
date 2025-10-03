@@ -1,0 +1,7 @@
+query accountByCode($code: String!) {
+  accountByCode(code: $code) {
+    id
+    accountId
+    name
+  }
+}
