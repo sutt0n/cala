@@ -102,4 +102,26 @@ reset_pg_and_restart_server() {
   exec_graphql 'transaction-by-external-id' "$variables"
   tx_external_id=$(graphql_output '.data.transactionByExternalId.externalId')
   [[ "$tx_external_id" == "transaction_external_id-123" ]] || exit 1
+
+  # get account id
+  variables=$(
+    jq -n \
+      --arg code "USERS_TWO" \
+    '{"code": $code}'
+  )
+  exec_graphql 'account-by-code' "$variables"
+  account_id=$(graphql_output '.data.accountByCode.accountId')
+
+  echo "Account ID: $account_id"
+  [[ -n "$account_id" ]] || exit 1
+
+  # balances for account 
+  variables=$(
+    jq -n \
+      --arg accountId "$account_id" \
+    '{"accountId": $accountId}'
+  )
+  exec_graphql 'balances-for-account' "$variables"
+  balance_count=$(graphql_output '.data.balancesForAccount | length')
+  [[ "$balance_count" -gt 0 ]] || exit 1
 }

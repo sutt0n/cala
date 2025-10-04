@@ -123,5 +123,22 @@ async fn transaction_post_with_effective_balances() -> anyhow::Result<()> {
     assert_eq!(balances.period.settled(), dec!(200));
     assert_eq!(balances.period.pending(), dec!(200));
 
+    let account_balances = cala
+        .balances()
+        .find_all_for_account(recipient_account.id())
+        .await?;
+
+    assert_eq!(account_balances.len(), 2);
+    let btc_balance = account_balances
+        .iter()
+        .find(|balance| balance.details.currency == Currency::BTC)
+        .unwrap();
+    assert_eq!(btc_balance.settled(), dec!(2580));
+    let usd_balance = account_balances
+        .iter()
+        .find(|balance| balance.details.currency == Currency::USD)
+        .unwrap();
+    assert_eq!(usd_balance.settled(), dec!(200));
+
     Ok(())
 }

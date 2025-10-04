@@ -154,6 +154,8 @@ const main = async () => {
     .transactions()
     .post(txTemplate.values().code, transactionParams);
 
+  console.log("transaction", tx.values());
+
   const balances1 = await cala
     .balances()
     .find(account.id(), journal.id(), "USD");

@@ -1,0 +1,21 @@
+query balancesForAccount($accountId: UUID!) {
+  balancesForAccount(accountId: $accountId) {
+    accountId
+    currency
+    settled {
+      normalBalance {
+        units
+      }
+    }
+    pending {
+      normalBalance {
+        units
+      }
+    }
+    encumbrance {
+      normalBalance {
+        units
+      }
+    }
+  }
+}

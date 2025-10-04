@@ -87,6 +87,14 @@ impl Balances {
         self.repo.find_all(ids).await
     }
 
+    #[instrument(name = "cala_ledger.balance.find_all_for_account", skip(self))]
+    pub async fn find_all_for_account(
+        &self,
+        account_id: AccountId,
+    ) -> Result<Vec<AccountBalance>, BalanceError> {
+        self.repo.find_all_for_account(account_id).await
+    }
+
     pub(crate) async fn update_balances_in_op(
         &self,
         op: &mut LedgerOperation<'_>,

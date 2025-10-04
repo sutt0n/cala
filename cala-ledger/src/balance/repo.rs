@@ -67,6 +67,38 @@ impl BalanceRepo {
         }
     }
 
+    pub(super) async fn find_all_for_account(
+        &self,
+        account_id: AccountId,
+    ) -> Result<Vec<AccountBalance>, BalanceError> {
+        let rows = sqlx::query!(
+            r#"
+            SELECT
+                h.values,
+                a.normal_balance_type as "normal_balance_type!: DebitOrCredit"
+            FROM cala_balance_history h
+            JOIN cala_current_balances c
+                ON h.journal_id = c.journal_id
+                AND h.account_id = c.account_id
+                AND h.currency = c.currency
+                AND h.version = c.latest_version
+            JOIN cala_accounts a
+                ON c.account_id = a.id
+            WHERE c.account_id = $1"#,
+            account_id as AccountId,
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        let mut ret = Vec::with_capacity(rows.len());
+        for row in rows {
+            let details: BalanceSnapshot =
+                serde_json::from_value(row.values).expect("Failed to deserialize balance snapshot");
+            ret.push(AccountBalance::new(row.normal_balance_type, details));
+        }
+        Ok(ret)
+    }
+
     pub(super) async fn find_all(
         &self,
         ids: &[BalanceId],

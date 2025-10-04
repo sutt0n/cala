@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                h.values,\n                a.normal_balance_type as \"normal_balance_type!: DebitOrCredit\"\n            FROM cala_balance_history h\n            JOIN cala_current_balances c\n                ON h.journal_id = c.journal_id\n                AND h.account_id = c.account_id\n                AND h.currency = c.currency\n                AND h.version = c.latest_version\n            JOIN cala_accounts a\n                ON c.account_id = a.id\n            WHERE c.account_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "values",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 1,
+        "name": "normal_balance_type!: DebitOrCredit",
+        "type_info": {
+          "Custom": {
+            "name": "debitorcredit",
+            "kind": {
+              "Enum": [
+                "debit",
+                "credit"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "ce7b06687ee06fe0c122b5fbf0e6cac5a86ffef8cb446b33e5ebf637feb5c23c"
+}

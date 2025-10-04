@@ -86,16 +86,57 @@ impl CalaAccounts {
   }
 
   #[napi]
+  pub async fn find_by_code(&self, code: String) -> napi::Result<CalaAccount> {
+    match self.inner.find_by_code(code.clone()).await {
+      Ok(account) => Ok(CalaAccount { inner: account }),
+      Err(cala_ledger::account::error::AccountError::CouldNotFindByCode(_)) => Err(
+        napi::Error::from_reason(format!("Account with code '{}' not found", code)),
+      ),
+      Err(e) => Err(crate::generic_napi_error(e)),
+    }
+  }
+
+  #[napi]
+  pub async fn find_by_id(&self, account_id: String) -> napi::Result<CalaAccount> {
+    let account_id = account_id
+      .parse::<cala_ledger::AccountId>()
+      .map_err(crate::generic_napi_error)?;
+
+    match self.inner.find(account_id).await {
+      Ok(account) => Ok(CalaAccount { inner: account }),
+      Err(cala_ledger::account::error::AccountError::CouldNotFindById(_)) => Err(
+        napi::Error::from_reason(format!("Account with id '{}' not found", account_id)),
+      ),
+      Err(e) => Err(crate::generic_napi_error(e)),
+    }
+  }
+
+  #[napi]
+  pub async fn find_by_external_id(&self, external_id: String) -> napi::Result<CalaAccount> {
+    match self.inner.find_by_external_id(external_id).await {
+      Ok(account) => Ok(CalaAccount { inner: account }),
+      Err(cala_ledger::account::error::AccountError::CouldNotFindByExternalId(external_id)) => {
+        Err(napi::Error::from_reason(format!(
+          "Account with external_id '{}' not found",
+          external_id
+        )))
+      }
+      Err(e) => Err(crate::generic_napi_error(e)),
+    }
+  }
+
+  #[napi]
   pub async fn list(&self, query: PaginatedQueryArgs) -> napi::Result<PaginatedAccounts> {
     let query = cala_ledger::es_entity::PaginatedQueryArgs {
       after: query.after.map(|c| c.try_into()).transpose()?,
       first: usize::try_from(query.first).map_err(crate::generic_napi_error)?,
     };
-    let ret = self
-      .inner
-      .list(query)
-      .await
-      .map_err(crate::generic_napi_error)?;
+
+    let ret = match self.inner.list(query).await {
+      Ok(ret) => ret,
+      Err(e) => return Err(crate::generic_napi_error(e)),
+    };
+
     Ok(PaginatedAccounts {
       accounts: ret.entities.into_iter().map(AccountValues::from).collect(),
       has_next_page: ret.has_next_page,
