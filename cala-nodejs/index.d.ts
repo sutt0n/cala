@@ -7,6 +7,9 @@ export declare class CalaAccount {
 
 export declare class CalaAccounts {
   create(newAccount: NewAccount): Promise<CalaAccount>
+  findByCode(code: string): Promise<CalaAccount>
+  findById(accountId: string): Promise<CalaAccount>
+  findByExternalId(externalId: string): Promise<CalaAccount>
   list(query: PaginatedQueryArgs): Promise<PaginatedAccounts>
 }
 
@@ -16,6 +19,7 @@ export declare class CalaBalances {
 
 export declare class CalaEntries {
   listByTransaction(transactionId: string): Promise<Array<EntryValues>>
+  listForJournalId(journalId: string, query: PaginatedQueryArgs, direction?: ListDirection | undefined | null): Promise<PaginatedEntries>
   listForAccountId(accountId: string, query: PaginatedQueryArgs, direction?: ListDirection | undefined | null): Promise<PaginatedEntries>
 }
 
@@ -46,6 +50,8 @@ export declare class CalaTransaction {
 }
 
 export declare class CalaTransactions {
+  findById(id: string): Promise<CalaTransaction>
+  findByExternalId(externalId: string): Promise<CalaTransaction | null>
   post(txTemplateCode: string, params: any): Promise<CalaTransaction>
   voidTransaction(transactionId: string): Promise<CalaTransaction>
 }

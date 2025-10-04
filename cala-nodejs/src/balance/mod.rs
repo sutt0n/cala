@@ -38,11 +38,20 @@ impl CalaBalances {
       .parse::<cala_ledger::Currency>()
       .map_err(crate::generic_napi_error)?;
 
-    let balance = self
+    let balance = match self
       .inner
-      .find(journal_id, account_id, currency)
+      .find(journal_id.clone(), account_id.clone(), currency.clone())
       .await
-      .map_err(crate::generic_napi_error)?;
+    {
+      Ok(balance) => Ok(balance),
+      Err(cala_ledger::balance::error::BalanceError::NotFound(_, _, _)) => {
+        return Err(napi::Error::from_reason(format!(
+          "Balance not found for account_id {}, journal_id {}, currency {}",
+          account_id, journal_id, currency
+        )));
+      }
+      Err(e) => Err(crate::generic_napi_error(e)),
+    }?;
 
     Ok(BalanceValues {
       pending: balance.pending().to_string(),

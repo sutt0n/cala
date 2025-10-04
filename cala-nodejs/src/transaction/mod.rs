@@ -44,6 +44,38 @@ impl CalaTransactions {
   }
 
   #[napi]
+  pub async fn find_by_id(&self, id: String) -> napi::Result<CalaTransaction> {
+    let tx_id = id
+      .parse::<cala_ledger::TransactionId>()
+      .map_err(crate::generic_napi_error)?;
+
+    match self.inner.find_by_id(tx_id).await {
+      Ok(tx) => Ok(CalaTransaction { inner: tx }),
+      Err(cala_ledger::transaction::error::TransactionError::CouldNotFindById(_)) => Err(
+        napi::Error::from_reason(format!("Transaction with id {} not found", id)),
+      ),
+      Err(e) => Err(crate::generic_napi_error(e)),
+    }
+  }
+
+  #[napi]
+  pub async fn find_by_external_id(
+    &self,
+    external_id: String,
+  ) -> napi::Result<Option<CalaTransaction>> {
+    match self.inner.find_by_external_id(external_id.clone()).await {
+      Ok(tx) => Ok(Some(CalaTransaction { inner: tx })),
+      Err(cala_ledger::transaction::error::TransactionError::CouldNotFindByExternalId(_)) => {
+        Err(napi::Error::from_reason(format!(
+          "Could not find transaction with external_id {}",
+          external_id
+        )))
+      }
+      Err(e) => Err(crate::generic_napi_error(e)),
+    }
+  }
+
+  #[napi]
   pub async fn post(
     &self,
     tx_template_code: String,
